@@ -1,0 +1,359 @@
+// ─── Auth Pages — Login & Register ────────────────────────────────────────────
+// Shared base for both pages. Mirrors the NutriLens light-green theme.
+// login.scss imports this block; register.scss will do the same via @forward.
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+// ── Token map (mirrors sidebar.scss) ──────────────────────────────────────────
+$green-primary    : #16a34a;
+$green-dark       : #14532d;
+$green-light-bg   : #f0fdf4;
+$green-active-text: #15803d;
+$text-dark        : #0f172a;
+$text-muted       : #64748b;
+$border-color     : #e2e8f0;
+$surface          : #ffffff;
+$input-bg         : #f8fafc;
+$error            : #dc2626;
+
+// ── Blobs / background decoration ─────────────────────────────────────────────
+.auth-page {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f6fdf8;
+  font-family: 'Inter', sans-serif;
+  overflow: hidden;
+
+  // ── Subtle ambient blobs ────────────────────────────────────────────────────
+  &__bg-decoration {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  &__blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.35;
+
+    &--1 {
+      width: 520px;
+      height: 520px;
+      background: radial-gradient(circle, #bbf7d0 0%, #86efac 60%, transparent 100%);
+      top: -160px;
+      right: -160px;
+    }
+
+    &--2 {
+      width: 380px;
+      height: 380px;
+      background: radial-gradient(circle, #d1fae5 0%, #6ee7b7 60%, transparent 100%);
+      bottom: -120px;
+      left: -100px;
+    }
+  }
+
+  // ── Main column (brand + card) ──────────────────────────────────────────────
+  &__main {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 460px;
+    padding: 2rem 1.25rem 3rem;
+  }
+
+  // ── Brand mark ─────────────────────────────────────────────────────────────
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    text-decoration: none;
+  }
+
+  &__brand-icon {
+    width: 40px;
+    height: 40px;
+    background-color: $green-light-bg;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $green-primary;
+    flex-shrink: 0;
+    box-shadow: 0 1px 4px rgba($green-primary, 0.15);
+  }
+
+  &__brand-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: $text-dark;
+    line-height: 1.2;
+  }
+
+  &__brand-sub {
+    display: block;
+    font-size: 0.58rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: $text-muted;
+    text-transform: uppercase;
+  }
+
+  &__brand-text {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+// ── Auth card ─────────────────────────────────────────────────────────────────
+.auth-card {
+  width: 100%;
+  background: $surface;
+  border: 1px solid $border-color;
+  border-radius: 20px;
+  padding: 2.25rem 2rem;
+  box-shadow:
+    0 1px 3px rgba(0,0,0,.04),
+    0 8px 32px rgba(0,0,0,.07);
+
+  // ── Header ─────────────────────────────────────────────────────────────────
+  &__header {
+    margin-bottom: 1.75rem;
+    text-align: center;
+  }
+
+  &__title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: $text-dark;
+    margin: 0 0 0.35rem;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  &__subtitle {
+    font-size: 0.9rem;
+    color: $text-muted;
+    margin: 0;
+    font-weight: 400;
+  }
+
+  // ── Google button ───────────────────────────────────────────────────────────
+  &__google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: $surface;
+    border: 1.5px solid $border-color;
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: $text-dark;
+    cursor: pointer;
+    transition:
+      border-color 0.2s ease,
+      background-color 0.2s ease,
+      box-shadow 0.2s ease,
+      transform 0.15s ease;
+
+    &:hover {
+      border-color: darken($border-color, 10%);
+      background-color: $input-bg;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+  }
+
+  &__google-icon {
+    flex-shrink: 0;
+  }
+
+  // ── Divider ────────────────────────────────────────────────────────────────
+  &__divider {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1.25rem 0;
+
+    &::before,
+    &::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background-color: $border-color;
+    }
+
+    span {
+      font-size: 0.78rem;
+      color: $text-muted;
+      white-space: nowrap;
+      font-weight: 500;
+    }
+  }
+
+  // ── Form ────────────────────────────────────────────────────────────────────
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  &__label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__label {
+    font-size: 0.83rem;
+    font-weight: 600;
+    color: $text-dark;
+    letter-spacing: 0.01em;
+  }
+
+  &__forgot {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: $green-active-text;
+    text-decoration: none;
+    transition: color 0.15s;
+
+    &:hover {
+      color: $green-dark;
+      text-decoration: underline;
+    }
+  }
+
+  &__input {
+    width: 100%;
+    padding: 0.72rem 0.9rem;
+    background-color: $input-bg;
+    border: 1.5px solid $border-color;
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    color: $text-dark;
+    outline: none;
+    transition:
+      border-color 0.2s ease,
+      background-color 0.2s ease,
+      box-shadow 0.2s ease;
+    box-sizing: border-box;
+
+    &::placeholder {
+      color: #94a3b8;
+      font-weight: 400;
+    }
+
+    &:focus {
+      border-color: $green-primary;
+      background-color: $surface;
+      box-shadow: 0 0 0 3px rgba($green-primary, 0.12);
+    }
+  }
+
+  // ── Submit button ───────────────────────────────────────────────────────────
+  &__submit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.82rem 1rem;
+    background: $green-primary;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #ffffff;
+    cursor: pointer;
+    letter-spacing: 0.01em;
+    transition:
+      background-color 0.2s ease,
+      transform 0.15s ease,
+      box-shadow 0.2s ease;
+    box-shadow: 0 2px 10px rgba($green-primary, 0.35);
+
+    svg {
+      transition: transform 0.2s ease;
+    }
+
+    &:hover {
+      background-color: darken($green-primary, 6%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba($green-primary, 0.45);
+
+      svg {
+        transform: translateX(3px);
+      }
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 8px rgba($green-primary, 0.3);
+    }
+  }
+
+  // ── Switch prompt (login ↔ register) ────────────────────────────────────────
+  &__switch {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: $text-muted;
+    font-weight: 400;
+  }
+
+  &__switch-link {
+    color: $green-active-text;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.15s;
+
+    &:hover {
+      color: $green-dark;
+      text-decoration: underline;
+    }
+  }
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+@media (max-width: 520px) {
+  .auth-page__main {
+    padding: 1.5rem 1rem 2.5rem;
+  }
+
+  .auth-card {
+    padding: 1.75rem 1.25rem;
+    border-radius: 16px;
+
+    &__title {
+      font-size: 1.35rem;
+    }
+  }
+}

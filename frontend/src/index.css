@@ -1,0 +1,31 @@
+/* ─── Global base styles ───────────────────────────────────────────────────── */
+/* Stripped to bare minimum — layout is handled per-feature */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  /* Always light — the design uses a white/light-grey palette */
+  background-color: #fafafa;
+  color: #0f172a;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color-scheme: light;
+}
+
+#root {
+  /* Let each page/layout control its own sizing */
+  max-width: 100%;
+  margin: 0;
+  text-align: unset;
+  border-inline: none;
+  display: block;
+}

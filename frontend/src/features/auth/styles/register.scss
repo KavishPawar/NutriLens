@@ -1,0 +1,5 @@
+// ─── Register page styles ──────────────────────────────────────────────────────
+// All shared auth styles live in login.scss.
+// We import them here so Register.jsx gets the same look without duplication.
+
+@import './login';
