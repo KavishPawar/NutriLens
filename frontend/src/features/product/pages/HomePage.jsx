@@ -12,29 +12,73 @@ import {
   Leaf,
   ShieldPlus,
   Star,
+  Camera,
 } from "lucide-react";
-import { redirect, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { useState } from "react";
 
 const HomePage = () => {
   const navigate = useNavigate();
   const { user } = useAuthHook();
-  const [ inputBarcode, setInputBarcode ] = useState();
-  const { handleProductFetch, handleProductHistory, product, productHistory } = useProductHook();
+  const [inputBarcode, setInputBarcode] = useState();
+  const { handleProductFetch, handleProductHistory, product, productHistory } =
+    useProductHook();
+
+  // Detect mobile device
+  const isMobile =
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent,
+    ) || window.innerWidth < 768;
+
+  const handleBarcodeDecodeError = (err) => {
+    const details =
+      err?.message || "No barcode could be detected in the selected image.";
+    navigate("/error", {
+      state: {
+        status: 422,
+        message: `Barcode not detected. Try a clearer image. ${details}`,
+      },
+    });
+  };
+
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
+    let imageUrl;
     try {
       const reader = new BrowserMultiFormatReader();
-      const imageUrl = URL.createObjectURL(file);
+      imageUrl = URL.createObjectURL(file);
 
       const result = await reader.decodeFromImageUrl(imageUrl);
       const barcode = result.getText();
       console.log(barcode);
       await processBarcode(barcode);
     } catch (err) {
-      console.log("Barcode not detected. Try a clearer image." + err.message);
+      handleBarcodeDecodeError(err);
+    } finally {
+      if (imageUrl) URL.revokeObjectURL(imageUrl);
+    }
+  };
+
+  // Handle camera capture for mobile
+  const handleCameraCapture = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    let imageUrl;
+    try {
+      const reader = new BrowserMultiFormatReader();
+      imageUrl = URL.createObjectURL(file);
+
+      const result = await reader.decodeFromImageUrl(imageUrl);
+      const barcode = result.getText();
+      console.log(barcode);
+      await processBarcode(barcode);
+    } catch (err) {
+      handleBarcodeDecodeError(err);
+    } finally {
+      if (imageUrl) URL.revokeObjectURL(imageUrl);
     }
   };
 
@@ -44,15 +88,23 @@ const HomePage = () => {
       return;
     }
 
-    await handleProductFetch({ barcode });
-      console.log("FETCH DONE");
+    try {
+      await handleProductFetch({ barcode });
       navigate("/product-detail");
+    } catch (err) {
+      navigate("/error", {
+        state: {
+          status: err?.status,
+          message: err?.message || "Unable to fetch product details for this barcode.",
+        },
+      });
+    }
   };
 
   return (
     <div className="home-page">
       <div>
-        <h2>Welcome, {user?.username}</h2>
+        <h2>Welcome {user?.username}</h2>
       </div>
       <br></br>
       <div className="top-section">
@@ -62,8 +114,12 @@ const HomePage = () => {
               <div className="icon-wrapper">
                 <Scan size={32} />
               </div>
-              <h2>Upload Barcode</h2>
-              <p>Drag and drop your photo here or click to browse</p>
+              <h2>{isMobile ? "Scan Barcode" : "Upload Barcode"}</h2>
+              <p>
+                {isMobile
+                  ? "Take a photo or upload an image"
+                  : "Drag and drop your photo here or click to browse"}
+              </p>
               <label></label>
               <input
                 id="inputField"
@@ -72,8 +128,28 @@ const HomePage = () => {
                 accept="image/*"
                 onChange={handleImageUpload}
               />
+              {/* Camera capture for mobile */}
+              {isMobile && (
+                <input
+                  id="cameraInput"
+                  style={{ display: "none" }}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handleCameraCapture}
+                />
+              )}
             </div>
           </label>
+          {/* Mobile: Show camera button separately */}
+          {isMobile && (
+            <label for="cameraInput" className="mobile-camera-btn">
+              <div className="camera-button">
+                <Camera size={24} />
+                <span>Open Camera</span>
+              </div>
+            </label>
+          )}
         </div>
 
         <div className="actions-section">
@@ -83,8 +159,16 @@ const HomePage = () => {
               <span>Manual Entry</span>
             </div>
             <div className="input-group">
-              <input type="number" placeholder="Enter barcode number..." onChange={(e) => setInputBarcode(e.target.value)} value={inputBarcode}/>
-              <button className="btn-icon" onClick={() => processBarcode( inputBarcode )}>
+              <input
+                type="number"
+                placeholder="Enter barcode number..."
+                onChange={(e) => setInputBarcode(e.target.value)}
+                value={inputBarcode}
+              />
+              <button
+                className="btn-icon"
+                onClick={() => processBarcode(inputBarcode)}
+              >
                 <ArrowRight size={18} />
               </button>
             </div>
@@ -99,7 +183,7 @@ const HomePage = () => {
                     <div
                       className="scan-item"
                       key={prod.barcode}
-                      onClick={() => processBarcode( prod.barcode )}
+                      onClick={() => processBarcode(prod.barcode)}
                     >
                       <div
                         className="scan-icon-mock"
@@ -115,7 +199,9 @@ const HomePage = () => {
                           {prod.processingLevel ?? "unknown"}
                         </span>
                       </div>
-                      <div className="score score-green">{prod.rating.stars}/5</div>
+                      <div className="score score-green">
+                        {prod.rating.stars}/5
+                      </div>
                     </div>
                   </div>
                 ))

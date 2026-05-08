@@ -9,8 +9,10 @@ import {
   ChevronLeft,
   ChevronRight,
   Menu,
+  ShieldCheck,
 } from 'lucide-react';
 import '../../styles/sidebar.scss';
+import { useAuthHook } from '../auth/hooks/useAuthHook';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 const SIDEBAR_OPEN_WIDTH  = 220; // px — default open width
@@ -23,13 +25,14 @@ const NAV_ITEMS = [
   { icon: LayoutDashboard, label: 'Dashboard',   active: true, path: '/'},
   { icon: History,         label: 'Scan History',active: false, path: '/product-history' },
   { icon: Settings,        label: 'Settings',    active: false, path: '/profile' },
-  { icon: HelpCircle,      label: 'Support',     active: false },
 ];
 
 // ─── Component ────────────────────────────────────────────────────────────────
 const Sidebar = () => {
+  const { user } = useAuthHook();
   const [isOpen,  setIsOpen]  = useState(true);
   const [width,   setWidth]   = useState(SIDEBAR_OPEN_WIDTH);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 768);
   const isDragging             = useRef(false);
   const startX                 = useRef(0);
   const startWidth             = useRef(0);
@@ -37,6 +40,7 @@ const Sidebar = () => {
 
   // ── Toggle open / closed ──────────────────────────────────────────────────
   const toggleSidebar = () => {
+    if (isMobile) return;
     if (isOpen) {
       setIsOpen(false);
     } else {
@@ -84,7 +88,16 @@ const Sidebar = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const onResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
   const currentWidth = isOpen ? width : SIDEBAR_CLOSED_WIDTH;
+  const showLabels = isMobile || isOpen;
   const location = useLocation();
   return (
     <>
@@ -92,7 +105,7 @@ const Sidebar = () => {
       <aside
         ref={sidebarRef}
         className={`sidebar ${isOpen ? "sidebar--open" : "sidebar--closed"}`}
-        style={{ width: currentWidth }}
+        style={isMobile ? undefined : { width: currentWidth }}
       >
         {/* Header */}
         <div
@@ -102,21 +115,9 @@ const Sidebar = () => {
         >
           <div className="sidebar__logo">
             <div className="sidebar__logo-icon">
-              <svg
-                width="22"
-                height="22"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M2 12C2 12 5 5 12 5s10 7 10 7-3 7-10 7S2 12 2 12Z" />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
+              <img src="/LOGO.png" alt="NutriLens logo" />
             </div>
-            {isOpen && (
+            {showLabels && (
               <div className="sidebar__logo-text">
                 <span className="sidebar__logo-name">NutriLens</span>
               </div>
@@ -135,30 +136,53 @@ const Sidebar = () => {
               }`}
             >
               <Icon size={20} className="sidebar__nav-icon" />
-              {isOpen && <span>{label}</span>}
+              {showLabels && <span>{label}</span>}
             </a>
           ))}
+          {/* Admin-only link */}
+          {user?.role === 'admin' && (
+            <a
+              href="/admin"
+              className={`sidebar__nav-item ${
+                location.pathname === '/admin' ? 'sidebar__nav-item--active' : ''
+              }`}
+            >
+              <ShieldCheck size={20} className="sidebar__nav-icon" />
+              {showLabels && <span>Admin Panel</span>}
+            </a>
+          )}
         </nav>
 
         {/* Footer — user profile */}
         <div className="sidebar__footer">
           <div className="sidebar__user">
-            <div className="sidebar__user-avatar">JV</div>
-            {isOpen && (
+            <div className="sidebar__user-avatar">
+              {user
+                ? (user.username || user.name || 'U')
+                    .split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+                : '??'}
+            </div>
+            {showLabels && (
               <div className="sidebar__user-info">
-                <p className="sidebar__user-name">Julian V.</p>
-                <p className="sidebar__user-role">Pro Member</p>
+                <p className="sidebar__user-name">
+                  {user?.username || user?.name || 'Guest'}
+                </p>
+                <p className="sidebar__user-role">
+                  {user?.role === 'admin' ? 'Admin' : user?.role === 'pro' ? 'Pro Member' : 'Free Member'}
+                </p>
               </div>
             )}
           </div>
         </div>
 
         {/* Drag handle */}
-        <div
-          className="sidebar__resize-handle"
-          onMouseDown={onMouseDown}
-          title="Drag to resize"
-        />
+        {!isMobile && (
+          <div
+            className="sidebar__resize-handle"
+            onMouseDown={onMouseDown}
+            title="Drag to resize"
+          />
+        )}
       </aside>
     </>
   );

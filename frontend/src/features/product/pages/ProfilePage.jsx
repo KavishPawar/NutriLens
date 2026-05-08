@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import {
   User,
   Mail,
@@ -11,89 +11,115 @@ import {
   Moon,
   Trash2,
   LogOut,
+  Heart,
   Camera,
   CheckCircle2,
   AlertTriangle,
-} from 'lucide-react';
-import { useAuthHook } from '../../auth/hooks/useAuthHook';
-import { useNavigate } from 'react-router'
-import '../styles/profile.scss';
-import { useProductHook } from '../hooks/useProductHook';
+  CreditCard,
+  Zap,
+} from "lucide-react";
+import { useAuthHook } from "../../auth/hooks/useAuthHook";
+import { useNavigate } from "react-router";
+import "../styles/profile.scss";
+import { useProductHook } from "../hooks/useProductHook";
 
 // ── Curator Goal definitions ─────────────────────────────────────────────────
 const CURATOR_GOALS = [
   {
-    id: 'lower_sodium',
+    id: "lower_sodium",
     icon: <Droplets size={18} />,
-    label: 'Lower Sodium',
-    desc: 'Flag high-salt items',
+    label: "Less Salt",
+    desc: "Flag high-salt items",
+    concern: "less sodium",
   },
   {
-    id: 'avoid_ultra',
+    id: "avoid_ultra_processed",
     icon: <Factory size={18} />,
-    label: 'Avoid Ultra-processed',
-    desc: 'Prioritise whole foods',
+    label: "Less Processed Food",
+    desc: "Prioritise whole foods",
+    concern: "less processed food",
   },
   {
-    id: 'sugar_watch',
+    id: "less_sugar",
     icon: <Candy size={18} />,
-    label: 'Sugar Watch',
-    desc: 'Daily limit: 25g',
+    label: "Less Sugar",
+    desc: "Daily limit: 25g",
+    concern: "less sugar",
   },
   {
-    id: 'eco_score',
+    id: "less_additives",
     icon: <Leaf size={18} />,
-    label: 'Eco-Score Focus',
-    desc: 'Prioritise sustainability',
+    label: "Fewer Additives",
+    desc: "Avoid artificial ingredients",
+    concern: "less additives",
+  },
+  {
+    id: "low_cholesterol",
+    icon: <Heart size={18} />,
+    label: "Low Cholesterol",
+    desc: "Reduce unhealthy fats",
+    concern: "less cholesterol",
   },
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function getInitials(name) {
-  if (!name) return '??';
+  if (!name) return "??";
   return name
-    .split(' ')
+    .split(" ")
     .map((n) => n[0])
-    .join('')
+    .join("")
     .toUpperCase()
     .slice(0, 2);
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
 const ProfilePage = () => {
-  const { user, handleLogout } = useAuthHook();
+  const { user, handleLogout, handleUpdateProfile } = useAuthHook();
   const { handleDeleteHistory } = useProductHook();
 
   // ── Local form state (mirrors user values) ─────────────────────────────────
-  const [fullName, setFullName]   = useState('');
-  const [email, setEmail]         = useState('');
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
 
-  // ── Curator goals: set of active goal IDs ─────────────────────────────────
-  const [goals, setGoals] = useState(new Set(['lower_sodium']));
+  // ── Curator goals: set of active goal concerns ────────────────────────────
+  const [goals, setGoals] = useState(new Set());
 
   // ── App Preferences ───────────────────────────────────────────────────────
-  const [theme, setTheme] = useState('light'); // 'light' | 'dark'
+  const [theme, setTheme] = useState("light"); // 'light' | 'dark'
 
   // ── Dirty-tracking: show save bar when anything changes ───────────────────
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [isDirty, setIsDirty]     = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
   const [saveStatus, setSaveStatus] = useState(null); // null | 'saved' | 'error'
   const saveTimerRef = useRef(null);
 
   // ── Seed form from user once loaded ───────────────────────────────────────
-  const originalRef = useRef({ fullName: '', email: '', goals: new Set(['lower_sodium']), theme: 'light' });
+  const originalRef = useRef({
+    fullName: "",
+    email: "",
+    goals: new Set(),
+    theme: "light",
+  });
 
   useEffect(() => {
     if (user) {
-      const name  = user.username || user.name || '';
-      const mail  = user.email || '';
+      const name = user.username || user.name || "";
+      const mail = user.email || "";
+      const initialGoals = Array.isArray(user.goals)
+        ? new Set(user.goals)
+        : new Set();
+      const initialTheme = user.theme || "light";
+
       setFullName(name);
       setEmail(mail);
+      setGoals(initialGoals);
+      setTheme(initialTheme);
       originalRef.current = {
         fullName: name,
-        email:    mail,
-        goals:    new Set(['lower_sodium']),
-        theme:    'light',
+        email: mail,
+        goals: new Set(initialGoals),
+        theme: initialTheme,
       };
     }
   }, [user]);
@@ -106,31 +132,63 @@ const ProfilePage = () => {
       [...goals].some((g) => !orig.goals.has(g));
     const dirty =
       fullName !== orig.fullName ||
-      email    !== orig.email    ||
-      goalsChanged               ||
-      theme    !== orig.theme;
+      email !== orig.email ||
+      goalsChanged ||
+      theme !== orig.theme;
     setIsDirty(dirty);
     if (!dirty) setSaveStatus(null);
   }, [fullName, email, goals, theme]);
 
   // ── Toggle a curator goal ──────────────────────────────────────────────────
-  const toggleGoal = (id) => {
+  const toggleGoal = (concern) => {
     setGoals((prev) => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      next.has(concern) ? next.delete(concern) : next.add(concern);
       return next;
     });
   };
 
-  // ── Save handler (stub — plug in your API call) ────────────────────────────
-  const handleSave = () => {
-    // TODO: persist changes via API
-    setSaveStatus('saved');
-    // Commit as new "original"
-    originalRef.current = { fullName, email, goals: new Set(goals), theme };
-    setIsDirty(false);
-    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-    saveTimerRef.current = setTimeout(() => setSaveStatus(null), 3000);
+  const selectedGoals = CURATOR_GOALS.filter((goal) => goals.has(goal.concern));
+  const availableGoals = CURATOR_GOALS.filter(
+    (goal) => !goals.has(goal.concern),
+  );
+
+  // ── Save handler — persist profile changes via API ----------------------
+  const handleSave = async () => {
+    try {
+      const updatedUser = await handleUpdateProfile({
+        username: fullName,
+        email,
+        goals: [...goals],
+        theme,
+      });
+
+      setSaveStatus("saved");
+      originalRef.current = {
+        fullName,
+        email,
+        goals: new Set(goals),
+        theme,
+      };
+      setIsDirty(false);
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = setTimeout(() => setSaveStatus(null), 3000);
+
+      if (updatedUser) {
+        setFullName(updatedUser.username || fullName);
+        setEmail(updatedUser.email || email);
+        const refreshedGoals = Array.isArray(updatedUser.goals)
+          ? new Set(updatedUser.goals)
+          : new Set();
+        setGoals(refreshedGoals);
+        originalRef.current.goals = new Set(refreshedGoals);
+      }
+    } catch (err) {
+      setSaveStatus("error");
+      console.error("Profile update failed", err);
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = setTimeout(() => setSaveStatus(null), 3000);
+    }
   };
 
   // ── Cancel handler ─────────────────────────────────────────────────────────
@@ -143,7 +201,7 @@ const ProfilePage = () => {
     setIsDirty(false);
     setSaveStatus(null);
   };
-  
+
   // ── Logout handlers ──────────────────────────────────────────────────────
   const navigate = useNavigate();
 
@@ -151,22 +209,21 @@ const ProfilePage = () => {
   const confirmLogout = async () => {
     setShowLogoutModal(false);
     // TODO: clear auth tokens / call logout API
-    await handleLogout()
-    navigate('/login')
-    console.log('Logging out…');
+    await handleLogout();
+    navigate("/login");
+    console.log("Logging out…");
   };
 
   // ── Erase data stub ───────────────────────────────────────────────────────
   const handleEraseData = async () => {
     // TODO: confirmation modal + API call
-    await handleDeleteHistory({ userId: user._id })
-    console.log('Erasing data…');
+    await handleDeleteHistory({ userId: user._id });
+    console.log("Erasing data…");
   };
 
-  const displayName = fullName || user?.username || user?.name || 'Curator';
+  const displayName = fullName || user?.username || user?.name || "Curator";
 
   return (
-    
     <div className="profile-page">
       {/* ── Page header ───────────────────────────────────────────────────── */}
       <div className="profile-page__header">
@@ -176,7 +233,7 @@ const ProfilePage = () => {
             Manage your nutritional preferences and account details.
           </p>
         </div>
-        {saveStatus === 'saved' && (
+        {saveStatus === "saved" && (
           <div className="profile-page__toast profile-page__toast--success">
             <CheckCircle2 size={15} />
             Changes saved successfully!
@@ -202,10 +259,15 @@ const ProfilePage = () => {
               {user?.profilePic ? (
                 <img src={user.profilePic} alt={displayName} />
               ) : (
-                <span className="ps-identity__initials">{getInitials(displayName)}</span>
+                <span className="ps-identity__initials">
+                  {getInitials(displayName)}
+                </span>
               )}
             </div>
-            <button className="ps-identity__avatar-edit" aria-label="Change photo">
+            <button
+              className="ps-identity__avatar-edit"
+              aria-label="Change photo"
+            >
               <Camera size={13} />
             </button>
           </div>
@@ -213,7 +275,7 @@ const ProfilePage = () => {
           {/* Name + verified badge */}
           <div className="ps-identity__info">
             <p className="ps-identity__display-name">{displayName}</p>
-            <p className="ps-identity__email-display">{user?.email || '—'}</p>
+            <p className="ps-identity__email-display">{user?.email || "—"}</p>
             <span className="ps-identity__badge">
               <ShieldCheck size={11} />
               Verified User
@@ -261,37 +323,46 @@ const ProfilePage = () => {
         <div className="ps-section__meta">
           <h2 className="ps-section__heading">Curator Goals</h2>
           <p className="ps-section__desc">
-            Customise how NutriLens analyses your scans based on your dietary priorities.
+            Customise how NutriLens analyses your scans based on your dietary
+            priorities.
           </p>
         </div>
 
         <div className="ps-card ps-goals">
-          {CURATOR_GOALS.map((goal) => {
-            const active = goals.has(goal.id);
-            return (
-              <label
+          <div className="ps-goals__selected-list">
+            {selectedGoals.length > 0 ? (
+              selectedGoals.map((goal) => (
+                <button
+                  key={goal.id}
+                  type="button"
+                  className="ps-goal-chip"
+                  onClick={() => toggleGoal(goal.concern)}
+                >
+                  <span className="ps-goal-chip__icon">{goal.icon}</span>
+                  <span className="ps-goal-chip__label">{goal.label}</span>
+                  <span className="ps-goal-chip__remove">×</span>
+                </button>
+              ))
+            ) : (
+              <div className="ps-goals__empty">
+                No goals selected yet. Pick a goal from the tray below.
+              </div>
+            )}
+          </div>
+
+          <div className="ps-goals__tray">
+            {availableGoals.map((goal) => (
+              <button
                 key={goal.id}
-                className={`ps-goal-tile ${active ? 'ps-goal-tile--active' : ''}`}
-                htmlFor={`goal-${goal.id}`}
+                type="button"
+                className="ps-goal-item"
+                onClick={() => toggleGoal(goal.concern)}
               >
-                <input
-                  id={`goal-${goal.id}`}
-                  type="checkbox"
-                  className="ps-goal-tile__checkbox"
-                  checked={active}
-                  onChange={() => toggleGoal(goal.id)}
-                />
-                <span className="ps-goal-tile__icon">{goal.icon}</span>
-                <span className="ps-goal-tile__body">
-                  <span className="ps-goal-tile__label">{goal.label}</span>
-                  <span className="ps-goal-tile__desc">{goal.desc}</span>
-                </span>
-                <span className="ps-goal-tile__check">
-                  <CheckCircle2 size={16} />
-                </span>
-              </label>
-            );
-          })}
+                <span className="ps-goal-item__icon">{goal.icon}</span>
+                <span className="ps-goal-item__label">{goal.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -301,36 +372,87 @@ const ProfilePage = () => {
       <section className="ps-section">
         <div className="ps-section__meta">
           <h2 className="ps-section__heading">App Preferences</h2>
-          <p className="ps-section__desc">
-            Interface and appearance settings.
-          </p>
+          <p className="ps-section__desc">Interface and appearance settings.</p>
         </div>
 
         <div className="ps-card ps-prefs">
           <div className="ps-pref-row">
             <div className="ps-pref-row__info">
               <span className="ps-pref-row__icon-wrap">
-                {theme === 'dark' ? <Moon size={16} /> : <Sun size={16} />}
+                {theme === "dark" ? <Moon size={16} /> : <Sun size={16} />}
               </span>
               <div>
                 <p className="ps-pref-row__label">App Theme</p>
                 <p className="ps-pref-row__desc">
-                  {theme === 'dark' ? 'Dark mode is active' : 'Light mode is active'}
+                  {theme === "dark"
+                    ? "Dark mode is active"
+                    : "Light mode is active"}
                 </p>
               </div>
             </div>
             <button
               className="ps-theme-flip-btn"
-              onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+              title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
             >
-              {theme === 'light' ? <Sun size={14} /> : <Moon size={14} />}
-              {theme === 'light' ? 'Light' : 'Dark'}
+              {theme === "light" ? <Sun size={14} /> : <Moon size={14} />}
+              {theme === "light" ? "Light" : "Dark"}
               <span className="ps-theme-flip-btn__arrow">
-                {theme === 'light' ? <Moon size={12} /> : <Sun size={12} />}
+                {theme === "light" ? <Moon size={12} /> : <Sun size={12} />}
               </span>
             </button>
           </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════════════
+          SECTION 3b — Subscription
+      ══════════════════════════════════════════════════════════════════════════ */}
+      <section className="ps-section">
+        <div className="ps-section__meta">
+          <h2 className="ps-section__heading">Subscription</h2>
+          <p className="ps-section__desc">
+            Upgrade to Premium or Pro to unlock unlimited scans, AI insights and
+            full scan history.
+          </p>
+        </div>
+
+        <div className="ps-card ps-critical-card">
+          <div className="ps-critical-card__info">
+            <CreditCard
+              size={18}
+              className="ps-critical-card__icon"
+              style={{ color: "#15803d" }}
+            />
+            <div>
+              <p
+                className="ps-critical-card__title"
+                style={{ color: "#0f172a" }}
+              >
+                Manage Subscription
+              </p>
+              <p className="ps-critical-card__desc">
+                View plans, upgrade, or manage your current NutriLens
+                subscription.
+              </p>
+            </div>
+          </div>
+          <button
+            id="profile-subscription-btn"
+            className="ps-critical-card__btn"
+            style={{
+              background: "#15803d",
+              color: "#fff",
+              border: "none",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.375rem",
+            }}
+            onClick={() => navigate("/payment")}
+          >
+            <Zap size={14} />
+            Upgrade Plan
+          </button>
         </div>
       </section>
 
@@ -351,15 +473,24 @@ const ProfilePage = () => {
           {/* Erase Data */}
           <div className="ps-card ps-critical-card">
             <div className="ps-critical-card__info">
-              <Trash2 size={18} className="ps-critical-card__icon ps-critical-card__icon--red" />
+              <Trash2
+                size={18}
+                className="ps-critical-card__icon ps-critical-card__icon--red"
+              />
               <div>
-                <p className="ps-critical-card__title">Delete NutriLens Account</p>
+                <p className="ps-critical-card__title">
+                  Delete NutriLens Account
+                </p>
                 <p className="ps-critical-card__desc">
-                  This will permanently erase your scan history and nutritional profile.
+                  This will permanently erase your scan history and nutritional
+                  profile.
                 </p>
               </div>
             </div>
-            <button className="ps-critical-card__btn ps-critical-card__btn--red" onClick={handleEraseData}>
+            <button
+              className="ps-critical-card__btn ps-critical-card__btn--red"
+              onClick={handleEraseData}
+            >
               Erase Data
             </button>
           </div>
@@ -367,7 +498,10 @@ const ProfilePage = () => {
           {/* Logout Account */}
           <div className="ps-card ps-critical-card ps-critical-card--logout">
             <div className="ps-critical-card__info">
-              <LogOut size={18} className="ps-critical-card__icon ps-critical-card__icon--muted" />
+              <LogOut
+                size={18}
+                className="ps-critical-card__icon ps-critical-card__icon--muted"
+              />
               <div>
                 <p className="ps-critical-card__title ps-critical-card__title--muted">
                   Logout Account
@@ -377,7 +511,10 @@ const ProfilePage = () => {
                 </p>
               </div>
             </div>
-            <button className="ps-critical-card__btn ps-critical-card__btn--outline" onClick={handleLogoutUser}>
+            <button
+              className="ps-critical-card__btn ps-critical-card__btn--outline"
+              onClick={handleLogoutUser}
+            >
               Logout
             </button>
           </div>
@@ -400,16 +537,16 @@ const ProfilePage = () => {
           aria-modal="true"
           aria-labelledby="logout-modal-title"
         >
-          <div
-            className="ps-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="ps-modal" onClick={(e) => e.stopPropagation()}>
             <div className="ps-modal__icon-wrap">
               <LogOut size={22} />
             </div>
-            <h3 id="logout-modal-title" className="ps-modal__title">Log out of NutriLens?</h3>
+            <h3 id="logout-modal-title" className="ps-modal__title">
+              Log out of NutriLens?
+            </h3>
             <p className="ps-modal__desc">
-              You'll need to sign back in to access your scan history and preferences.
+              You'll need to sign back in to access your scan history and
+              preferences.
             </p>
             <div className="ps-modal__actions">
               <button
@@ -433,7 +570,7 @@ const ProfilePage = () => {
       {/* ═══════════════════════════════════════════════════════════════════════
           FLOATING SAVE / CANCEL BAR (appears only when dirty)
       ══════════════════════════════════════════════════════════════════════════ */}
-      <div className={`ps-save-bar ${isDirty ? 'ps-save-bar--visible' : ''}`}>
+      <div className={`ps-save-bar ${isDirty ? "ps-save-bar--visible" : ""}`}>
         <div className="ps-save-bar__inner">
           <span className="ps-save-bar__hint">
             <AlertTriangle size={14} />

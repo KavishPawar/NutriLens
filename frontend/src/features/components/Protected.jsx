@@ -5,12 +5,14 @@ const Protected = ({ children }) => {
 
     const { loading, user } = useAuthHook();
     
-    if(loading) {
+    
+    if(user?.role !== "admin") {
+        if(loading) {
         return <h1>Loading...</h1>
-    }
-
-    if(!user) {
-        return <Navigate to="/login" />;
+        }
+        if(!user) {
+            return <Navigate to="/login" />;
+        }
     }
 
   return children

@@ -1,10 +1,11 @@
 import React from 'react'
+import { buildApiUrl } from "../../shared/api.config.js";
 
 const Google = () => {
   return (
     <div>
       <a
-        href="/api/auth/google"
+        href={buildApiUrl("/api/auth/google")}
         id="login-google-btn"
         className="auth-card__google-btn"
         type="button"

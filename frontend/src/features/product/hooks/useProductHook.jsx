@@ -1,35 +1,84 @@
 import { useContext, useEffect } from "react";
 import { ProductContext } from "../product.context";
-import { fetchProd, prodHistory, deleteHistory } from "../services/product.api";
+import {
+  createProductRequest,
+  deleteHistory,
+  fetchProd,
+  prodHistory,
+} from "../services/product.api";
+import { getBackendError } from "../../../shared/error.utils.js";
 
 export const useProductHook = () => {
   const context = useContext(ProductContext);
-  const { product, setProduct, productHistory, setProductHistory, loading, setLoading } = context;
+  const {
+    product,
+    setProduct,
+    aiResponse,
+    setAiResponse,
+    productHistory,
+    setProductHistory,
+    loading,
+    setLoading,
+  } = context;
 
   async function handleProductFetch({ barcode }) {
     setLoading(true);
-    const data = await fetchProd({ barcode });
-    setProduct(data.productInfo);
-    setLoading(false);
+    try {
+      const data = await fetchProd({ barcode });
+      setProduct(data.productInfo);
+      setAiResponse(data.aiResponse || null);
+    } catch (err) {
+      throw getBackendError(err, "Unable to fetch product details.");
+    } finally {
+      setLoading(false);
+    }
   }
   async function handleProductHistory() {
     setLoading(true);
-    const data = await prodHistory();
-    setProductHistory([...data.products].reverse());
-    setLoading(false);
+    try {
+      const data = await prodHistory();
+      setProductHistory([...data.products].reverse());
+    } catch (err) {
+      throw getBackendError(err, "Unable to fetch product history.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleDeleteHistory({ userId }) {
-    setLoading(true)
-    const data = await deleteHistory({ userId });
-    setProductHistory(null)
-    setLoading(false)
+    setLoading(true);
+    try {
+      await deleteHistory({ userId });
+      setProductHistory(null);
+    } catch (err) {
+      throw getBackendError(err, "Unable to delete product history.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleCreateProductRequest({ productName }) {
+    setLoading(true);
+    try {
+      return await createProductRequest({ productName });
+    } catch (err) {
+      throw getBackendError(err, "Unable to submit product request.");
+    } finally {
+      setLoading(false);
+    }
   }
   useEffect(() => {
-    handleProductHistory()
-  }, [])
+    handleProductHistory().catch(() => {});
+  }, []);
 
-  return ({ 
-    product, productHistory, loading, handleProductFetch, handleProductHistory, handleDeleteHistory
-   })
+  return {
+    product,
+    aiResponse,
+    productHistory,
+    loading,
+    handleProductFetch,
+    handleProductHistory,
+    handleDeleteHistory,
+    handleCreateProductRequest,
+  };
 };

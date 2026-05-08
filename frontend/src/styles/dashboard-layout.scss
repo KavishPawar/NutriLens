@@ -16,3 +16,9 @@
   overflow-y: auto;
   min-width: 0; // prevents flex children from overflowing
 }
+
+@media (max-width: 768px) {
+  .dashboard-main {
+    padding-bottom: 86px;
+  }
+}

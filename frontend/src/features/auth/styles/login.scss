@@ -2,19 +2,19 @@
 // Shared base for both pages. Mirrors the NutriLens light-green theme.
 // login.scss imports this block; register.scss will do the same via @forward.
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
 
 // ── Token map (mirrors sidebar.scss) ──────────────────────────────────────────
-$green-primary    : #16a34a;
-$green-dark       : #14532d;
-$green-light-bg   : #f0fdf4;
+$green-primary: #16a34a;
+$green-dark: #14532d;
+$green-light-bg: #f0fdf4;
 $green-active-text: #15803d;
-$text-dark        : #0f172a;
-$text-muted       : #64748b;
-$border-color     : #e2e8f0;
-$surface          : #ffffff;
-$input-bg         : #f8fafc;
-$error            : #dc2626;
+$text-dark: #0f172a;
+$text-muted: #64748b;
+$border-color: #e2e8f0;
+$surface: #ffffff;
+$input-bg: #f8fafc;
+$error: #dc2626;
 
 // ── Blobs / background decoration ─────────────────────────────────────────────
 .auth-page {
@@ -24,7 +24,7 @@ $error            : #dc2626;
   align-items: center;
   justify-content: center;
   background-color: #f6fdf8;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   overflow: hidden;
 
   // ── Subtle ambient blobs ────────────────────────────────────────────────────
@@ -44,7 +44,12 @@ $error            : #dc2626;
     &--1 {
       width: 520px;
       height: 520px;
-      background: radial-gradient(circle, #bbf7d0 0%, #86efac 60%, transparent 100%);
+      background: radial-gradient(
+        circle,
+        #bbf7d0 0%,
+        #86efac 60%,
+        transparent 100%
+      );
       top: -160px;
       right: -160px;
     }
@@ -52,7 +57,12 @@ $error            : #dc2626;
     &--2 {
       width: 380px;
       height: 380px;
-      background: radial-gradient(circle, #d1fae5 0%, #6ee7b7 60%, transparent 100%);
+      background: radial-gradient(
+        circle,
+        #d1fae5 0%,
+        #6ee7b7 60%,
+        transparent 100%
+      );
       bottom: -120px;
       left: -100px;
     }
@@ -82,14 +92,21 @@ $error            : #dc2626;
   &__brand-icon {
     width: 40px;
     height: 40px;
-    background-color: $green-light-bg;
+    background-color: #ffffff;
+    border: 1px solid $border-color;
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: $green-primary;
     flex-shrink: 0;
     box-shadow: 0 1px 4px rgba($green-primary, 0.15);
+
+    img {
+      width: 28px;
+      height: 28px;
+      object-fit: contain;
+      display: block;
+    }
   }
 
   &__brand-name {
@@ -122,8 +139,53 @@ $error            : #dc2626;
   border-radius: 20px;
   padding: 2.25rem 2rem;
   box-shadow:
-    0 1px 3px rgba(0,0,0,.04),
-    0 8px 32px rgba(0,0,0,.07);
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 8px 32px rgba(0, 0, 0, 0.07);
+
+  #register-isAdmin {
+    display: none;
+  }
+  
+  .auth-label {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    align-items: center;
+    margin-block: 0.5rem;
+  }
+
+  .admin_checkbox {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #cbd5e1;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+  
+#register-isAdmin:checked + .admin_checkbox {
+  background-color: #4f46e5;
+  border-color: #4f46e5;
+}
+
+.admin_checkbox::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 9px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: translate(-50%, -60%) rotate(45deg);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+#register-isAdmin:checked + .admin_checkbox::after {
+  opacity: 1;
+} 
 
   // ── Header ─────────────────────────────────────────────────────────────────
   &__header {
@@ -158,7 +220,7 @@ $error            : #dc2626;
     background: $surface;
     border: 1.5px solid $border-color;
     border-radius: 12px;
-    font-family: 'Inter', sans-serif;
+    font-family: "Inter", sans-serif;
     font-size: 0.9rem;
     font-weight: 600;
     color: $text-dark;
@@ -172,7 +234,7 @@ $error            : #dc2626;
     &:hover {
       border-color: darken($border-color, 10%);
       background-color: $input-bg;
-      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
       transform: translateY(-1px);
     }
 
@@ -195,7 +257,7 @@ $error            : #dc2626;
 
     &::before,
     &::after {
-      content: '';
+      content: "";
       flex: 1;
       height: 1px;
       background-color: $border-color;
@@ -254,7 +316,7 @@ $error            : #dc2626;
     background-color: $input-bg;
     border: 1.5px solid $border-color;
     border-radius: 10px;
-    font-family: 'Inter', sans-serif;
+    font-family: "Inter", sans-serif;
     font-size: 0.9rem;
     color: $text-dark;
     outline: none;
@@ -288,7 +350,7 @@ $error            : #dc2626;
     background: $green-primary;
     border: none;
     border-radius: 12px;
-    font-family: 'Inter', sans-serif;
+    font-family: "Inter", sans-serif;
     font-size: 0.95rem;
     font-weight: 700;
     color: #ffffff;

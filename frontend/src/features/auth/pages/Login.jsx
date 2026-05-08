@@ -16,8 +16,17 @@ const Login = () => {
 
     async function handleSubmit(e) {
         e.preventDefault()
-        await handleLogin({ email, password })
-        navigate('/')
+        try {
+            await handleLogin({ email, password })
+            navigate('/')
+        } catch (err) {
+            navigate('/error', {
+                state: {
+                    status: err?.status,
+                    message: err?.message || "Unable to login. Please try again.",
+                },
+            })
+        }
     }
 
   return (
@@ -31,9 +40,7 @@ const Login = () => {
             {/* Brand */}
             <div className="auth-page__brand">
                 <div className="auth-page__brand-icon">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M2 12h20M12 2a10 10 0 0 1 0 20M12 2C6.5 7 6.5 17 12 22M12 2c5.5 5 5.5 15 0 20"/>
-                    </svg>
+                    <img src="/LOGO.png" alt="NutriLens logo" />
                 </div>
                 <div className="auth-page__brand-text">
                     <span className="auth-page__brand-name">NutriLens</span>

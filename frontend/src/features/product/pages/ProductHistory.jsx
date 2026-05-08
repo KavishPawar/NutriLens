@@ -84,10 +84,20 @@ const ProductHistory = () => {
   const { productHistory, loading, handleProductFetch } = useProductHook();
   const navigate = useNavigate();
   
+  console.log(productHistory)
+
   const searchProduct = async ( barcode ) => {
-    await handleProductFetch({ barcode });
-    console.log("FETCH DONE");
-    navigate("/product-detail");
+    try {
+      await handleProductFetch({ barcode });
+      navigate("/product-detail");
+    } catch (err) {
+      navigate("/error", {
+        state: {
+          status: err?.status,
+          message: err?.message || "Unable to fetch product details from history.",
+        },
+      });
+    }
   }
   
   return (

@@ -3,43 +3,71 @@
 // slate text, card shadows, Inter font.
 
 // ── Design Tokens ─────────────────────────────────────────────────────────────
-$green-primary   : #15803d;
-$green-dark      : #14532d;
-$green-light-bg  : #dcfce7;
-$green-ring      : rgba(21, 128, 61, 0.25);
-$bg-page         : #fafafa;
-$bg-card         : #ffffff;
-$bg-field        : #f1f5f9;
-$bg-field-focus  : #ffffff;
-$text-dark       : #0f172a;
-$text-muted      : #475569;
+$green-primary: #15803d;
+$green-dark: #14532d;
+$green-light-bg: #dcfce7;
+$green-ring: rgba(21, 128, 61, 0.25);
+$bg-page: #fafafa;
+$bg-card: #ffffff;
+$bg-field: #f1f5f9;
+$bg-field-focus: #ffffff;
+$text-dark: #0f172a;
+$text-muted: #475569;
 $text-placeholder: #94a3b8;
-$border          : #e2e8f0;
-$border-focus    : #15803d;
-$red-primary     : #dc2626;
-$red-light-bg    : #fef2f2;
-$shadow-card     : 0 1px 3px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.04);
-$shadow-save     : 0 -4px 24px rgba(0,0,0,.1);
-$radius-card     : 1rem;
-$radius-btn      : 0.5rem;
-$transition      : 0.2s ease;
+$border: #e2e8f0;
+$border-focus: #15803d;
+$red-primary: #dc2626;
+$red-light-bg: #fef2f2;
+$shadow-card:
+  0 1px 3px rgba(0, 0, 0, 0.06),
+  0 4px 12px rgba(0, 0, 0, 0.04);
+$shadow-save: 0 -4px 24px rgba(0, 0, 0, 0.1);
+$radius-card: 1rem;
+$radius-btn: 0.5rem;
+$transition: 0.2s ease;
 
 // ── Base ──────────────────────────────────────────────────────────────────────
 .profile-page {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    sans-serif;
   background-color: $bg-page;
   min-height: 100vh;
-  padding: 2.5rem 3rem 6rem;   // bottom padding leaves room for save bar
+  padding: 2.5rem 3rem 6rem; // bottom padding leaves room for save bar
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
 
-  *, *::before, *::after { box-sizing: border-box; }
-  h1,h2,h3,h4,p,button { margin: 0; padding: 0; }
-  button { font-family: inherit; cursor: pointer; border: none; }
-  input  { font-family: inherit; }
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  p,
+  button {
+    margin: 0;
+    padding: 0;
+  }
+  button {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+  }
+  input {
+    font-family: inherit;
+  }
 
-  @media (max-width: 900px)  { padding: 2rem 1.5rem 6rem; }
-  @media (max-width: 600px)  { padding: 1.5rem 1rem  6rem; }
+  @media (max-width: 900px) {
+    padding: 2rem 1.5rem 6rem;
+  }
+  @media (max-width: 600px) {
+    padding: 1.5rem 1rem 6rem;
+  }
 
   // ── Page Header ─────────────────────────────────────────────────────────────
   &__header {
@@ -118,7 +146,9 @@ $transition      : 0.2s ease;
     color: $text-dark;
     margin-bottom: 0.375rem;
 
-    &--danger { color: $red-primary; }
+    &--danger {
+      color: $red-primary;
+    }
   }
 
   &__desc {
@@ -201,7 +231,9 @@ $transition      : 0.2s ease;
     align-items: center;
     justify-content: center;
     border: 2px solid #fff;
-    transition: background-color $transition, transform $transition;
+    transition:
+      background-color $transition,
+      transform $transition;
 
     &:hover {
       background-color: $green-dark;
@@ -218,7 +250,10 @@ $transition      : 0.2s ease;
     gap: 0.2rem;
     margin-right: auto;
 
-    @media (max-width: 640px) { align-items: center; margin-right: 0; }
+    @media (max-width: 640px) {
+      align-items: center;
+      margin-right: 0;
+    }
   }
 
   &__display-name {
@@ -288,10 +323,15 @@ $transition      : 0.2s ease;
     font-size: 0.875rem;
     color: $text-dark;
     outline: none;
-    transition: border-color $transition, box-shadow $transition, background-color $transition;
+    transition:
+      border-color $transition,
+      box-shadow $transition,
+      background-color $transition;
     width: 100%;
 
-    &::placeholder { color: $text-placeholder; }
+    &::placeholder {
+      color: $text-placeholder;
+    }
 
     &:focus {
       background-color: $bg-field-focus;
@@ -305,11 +345,100 @@ $transition      : 0.2s ease;
 // SECTION 2 — Curator Goals
 // ═══════════════════════════════════════════════════════════════════════════════
 .ps-goals {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+}
 
-  @media (max-width: 560px) { grid-template-columns: 1fr; }
+.ps-goals__selected-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  min-height: 3.5rem;
+  align-items: center;
+}
+
+.ps-goals__empty {
+  color: $text-muted;
+  font-size: 0.9rem;
+}
+
+.ps-goals__tray {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 1.25rem;
+  background-color: $bg-field;
+  border: 1px solid $border;
+}
+
+.ps-goal-chip,
+.ps-goal-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background-color: #ffffff;
+  color: $text-dark;
+  font-weight: 700;
+  transition:
+    background-color $transition,
+    border-color $transition,
+    transform $transition;
+}
+
+.ps-goal-chip {
+  background-color: $green-light-bg;
+  border-color: rgba(21, 128, 61, 0.18);
+  color: $green-dark;
+}
+
+.ps-goal-chip:hover,
+.ps-goal-item:hover {
+  transform: translateY(-1px);
+}
+
+.ps-goal-chip__icon,
+.ps-goal-item__icon {
+  width: 1.55rem;
+  height: 1.55rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  background-color: rgba(15, 23, 42, 0.05);
+  color: $text-dark;
+}
+
+.ps-goal-chip__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background-color: rgba(21, 128, 61, 0.12);
+  color: $green-dark;
+}
+
+.ps-goal-item {
+  background-color: #fff;
+  border-color: $border;
+}
+
+.ps-goal-item__label {
+  white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  .ps-goals__tray,
+  .ps-goals__selected-list {
+    justify-content: flex-start;
+  }
 }
 
 .ps-goal-tile {
@@ -324,17 +453,29 @@ $transition      : 0.2s ease;
   position: relative;
 
   // remove border from last row / last column
-  &:nth-child(2n)   { border-right: none; }
-  &:nth-last-child(-n+2) { border-bottom: none; }
+  &:nth-child(2n) {
+    border-right: none;
+  }
+  &:nth-last-child(-n + 2) {
+    border-bottom: none;
+  }
 
   @media (max-width: 560px) {
     border-right: none;
-    &:last-child { border-bottom: none; }
-    &:nth-last-child(-n+2) { border-bottom: 1px solid $border; }
-    &:last-child { border-bottom: none; }
+    &:last-child {
+      border-bottom: none;
+    }
+    &:nth-last-child(-n + 2) {
+      border-bottom: 1px solid $border;
+    }
+    &:last-child {
+      border-bottom: none;
+    }
   }
 
-  &:hover { background-color: #f8fafc; }
+  &:hover {
+    background-color: #f8fafc;
+  }
 
   // Hide native checkbox
   &__checkbox {
@@ -356,7 +497,9 @@ $transition      : 0.2s ease;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    transition: background-color $transition, color $transition;
+    transition:
+      background-color $transition,
+      color $transition;
   }
 
   &__body {
@@ -388,7 +531,9 @@ $transition      : 0.2s ease;
   &__check {
     color: $border;
     flex-shrink: 0;
-    transition: color $transition, transform $transition;
+    transition:
+      color $transition,
+      transform $transition;
     transform: scale(0.85);
     opacity: 0.4;
   }
@@ -397,15 +542,21 @@ $transition      : 0.2s ease;
   &--active {
     background-color: $green-light-bg;
 
-    &:hover { background-color: darken(#dcfce7, 3%); }
+    &:hover {
+      background-color: darken(#dcfce7, 3%);
+    }
 
     .ps-goal-tile__icon {
       background-color: $green-primary;
       color: #fff;
     }
 
-    .ps-goal-tile__label { color: $green-dark; }
-    .ps-goal-tile__desc  { color: $green-primary; }
+    .ps-goal-tile__label {
+      color: $green-dark;
+    }
+    .ps-goal-tile__desc {
+      color: $green-primary;
+    }
 
     .ps-goal-tile__check {
       color: $green-primary;
@@ -473,7 +624,10 @@ $transition      : 0.2s ease;
   color: $green-dark;
   background-color: $green-light-bg;
   border: 1px solid rgba(21, 128, 61, 0.2);
-  transition: background-color $transition, box-shadow $transition, transform $transition;
+  transition:
+    background-color $transition,
+    box-shadow $transition,
+    transform $transition;
   white-space: nowrap;
   cursor: pointer;
 
@@ -483,7 +637,9 @@ $transition      : 0.2s ease;
     transform: translateY(-1px);
   }
 
-  &:active { transform: translateY(0); }
+  &:active {
+    transform: translateY(0);
+  }
 
   // The small "switch-to" icon on the right
   &__arrow {
@@ -527,8 +683,12 @@ $transition      : 0.2s ease;
   &__icon {
     flex-shrink: 0;
 
-    &--red  { color: $red-primary; }
-    &--muted { color: $text-muted; }
+    &--red {
+      color: $red-primary;
+    }
+    &--muted {
+      color: $text-muted;
+    }
   }
 
   &__title {
@@ -537,7 +697,9 @@ $transition      : 0.2s ease;
     color: $red-primary;
     margin-bottom: 0.15rem;
 
-    &--muted { color: $text-dark; }
+    &--muted {
+      color: $text-dark;
+    }
   }
 
   &__desc {
@@ -551,12 +713,15 @@ $transition      : 0.2s ease;
     border-radius: $radius-btn;
     font-size: 0.8125rem;
     font-weight: 600;
-    transition: background-color $transition, color $transition, box-shadow $transition;
+    transition:
+      background-color $transition,
+      color $transition,
+      box-shadow $transition;
 
     &--red {
       background-color: $red-light-bg;
       color: $red-primary;
-      border: 1px solid rgba(220,38,38,.2);
+      border: 1px solid rgba(220, 38, 38, 0.2);
 
       &:hover {
         background-color: $red-primary;
@@ -631,21 +796,25 @@ $transition      : 0.2s ease;
     gap: 0.625rem;
     flex-shrink: 0;
 
-    @media (max-width: 640px) { justify-content: flex-end; }
+    @media (max-width: 640px) {
+      justify-content: flex-end;
+    }
   }
 
   &__cancel {
     background: transparent;
-    border: 1px solid rgba(255,255,255,.15);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     color: #cbd5e1;
     padding: 0.5rem 1.125rem;
     border-radius: $radius-btn;
     font-size: 0.8125rem;
     font-weight: 600;
-    transition: background-color $transition, color $transition;
+    transition:
+      background-color $transition,
+      color $transition;
 
     &:hover {
-      background-color: rgba(255,255,255,.08);
+      background-color: rgba(255, 255, 255, 0.08);
       color: #fff;
     }
   }
@@ -658,7 +827,9 @@ $transition      : 0.2s ease;
     border-radius: $radius-btn;
     font-size: 0.8125rem;
     font-weight: 700;
-    transition: background-color $transition, box-shadow $transition;
+    transition:
+      background-color $transition,
+      box-shadow $transition;
 
     &:hover {
       background-color: $green-dark;
@@ -669,18 +840,34 @@ $transition      : 0.2s ease;
 
 // ── Keyframes ─────────────────────────────────────────────────────────────────
 @keyframes slideIn {
-  from { opacity: 0; transform: translateY(-8px); }
-  to   { opacity: 1; transform: translateY(0);    }
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes backdropIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes modalIn {
-  from { opacity: 0; transform: translateY(16px) scale(0.97); }
-  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -760,7 +947,10 @@ $transition      : 0.2s ease;
     border-radius: 0.625rem;
     font-size: 0.875rem;
     font-weight: 600;
-    transition: background-color $transition, color $transition, box-shadow $transition;
+    transition:
+      background-color $transition,
+      color $transition,
+      box-shadow $transition;
 
     &--cancel {
       background-color: $bg-field;

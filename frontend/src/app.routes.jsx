@@ -7,6 +7,9 @@ import DashboardLayout from "./features/components/DashboardLayout";
 import ProductPage from "./features/product/pages/ProductPage";
 import ProductHistory from "./features/product/pages/ProductHistory";
 import ProfilePage from "./features/product/pages/ProfilePage";
+import AdminPage from "./features/product/pages/AdminPage";
+import PaymentPage from "./features/product/pages/PaymentPage";
+import ErrorPage from "./features/components/ErrorPage";
 
 export const router = createBrowserRouter([
   {
@@ -18,25 +21,21 @@ export const router = createBrowserRouter([
     element: <Register />,
   },
   {
-    // Dashboard shell — renders sidebar + wraps child routes via <Outlet>
     path: "/",
     element: <DashboardLayout />,
     children: [
       {
         index: true,
-        // element: <Protected><HomePage /></Protected>
         element: <HomePage />,
       },
     ],
   },
   {
-    // Dashboard shell — renders sidebar + wraps child routes via <Outlet>
     path: "/product-detail",
     element: <DashboardLayout />,
     children: [
       {
         index: true,
-        // element: <Protected><HomePage /></Protected>
         element: <ProductPage />,
       },
     ],
@@ -51,7 +50,7 @@ export const router = createBrowserRouter([
           <Protected>
             <ProductHistory />
           </Protected>
-          )
+        ),
       },
     ],
   },
@@ -64,5 +63,41 @@ export const router = createBrowserRouter([
         element: <ProfilePage />,
       },
     ],
+  },
+  {
+    path: "/admin",
+    element: <DashboardLayout />,
+    children: [
+      {
+        index: true,
+        element: (
+          <Protected>
+            <AdminPage />
+          </Protected>
+        ),
+      },
+    ],
+  },
+  {
+    path: "/payment",
+    element: <DashboardLayout />,
+    children: [
+      {
+        index: true,
+        element: (
+          <Protected>
+            <PaymentPage />
+          </Protected>
+        ),
+      },
+    ],
+  },
+  {
+    path: "/error",
+    element: <ErrorPage />,
+  },
+  {
+    path: "*",
+    element: <ErrorPage />,
   },
 ]);
