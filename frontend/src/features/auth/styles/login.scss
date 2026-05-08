@@ -92,8 +92,8 @@ $error: #dc2626;
   &__brand-icon {
     width: 40px;
     height: 40px;
-    background-color: #ffffff;
-    border: 1px solid $border-color;
+    background-color: $green-primary;
+    border: 1px solid $green-primary;
     border-radius: 10px;
     display: flex;
     align-items: center;
