@@ -30,6 +30,24 @@ const userSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
+    },
+    goals: {
+      type: [String],
+      default: null,
+    },
+    theme: {
+      type: String,
+      enum: ["light", "dark"],
+      default: null,
+    },
+    goal: {
+      type: String,
+      default: null,
+    },
   },
   { timestamps: true },
 );

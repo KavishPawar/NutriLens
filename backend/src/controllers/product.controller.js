@@ -4,6 +4,8 @@ import { normalization } from "../services/normalization.service.js";
 import rating from "../services/rating.service.js";
 import productModel from "../models/product.model.js";
 import userModel from "../models/user.model.js";
+import { generateResponse } from "../services/ai.service.js";
+import productRequestModel from "../models/productRequest.model.js";
 
 export async function fetchProduct(req, res) {
   // 6001065600048
@@ -12,14 +14,34 @@ export async function fetchProduct(req, res) {
     const barcode = Number(req.params.barcode);
     console.log(barcode);
 
+    const user = await userModel.findOne({ _id: req.user.id });
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+        success: false,
+      });
+    }
+    
+    let aiResponse;
+
     // Database Search. ////////////////////////////////////////////////////////////////////////////////////////////////////
     const dbSearch = await productModel.findOne({ barcode });
 
     if (dbSearch) {
+      try {
+        aiResponse = await generateResponse({
+          productInfo: dbSearch,
+          userGoals: user.goals || [],
+        });
+        console.log("AI RESPONSE:", aiResponse);
+      } catch (err) {
+        console.log("AI ERROR:", err.message);
+      }
       return res.status(200).json({
         message: "Product Fetched Successfully",
         success: true,
         productInfo: dbSearch,
+        aiResponse,
       });
     }
 
@@ -29,31 +51,63 @@ export async function fetchProduct(req, res) {
     );
 
     if (response.data.status === 0) {
-      return res.status(404).json({ message: "Product not found", response });
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
     }
 
     //  NORMALIZATION
     const normalisedData = await normalization(response.data.product);
 
-      await productModel.create({
-        imgUrl: normalisedData.imgUrl,
-        name: normalisedData.name,
-        brand: normalisedData.brand,
-        barcode: normalisedData.barcode,
-        processingLevel: normalisedData.processingLevel,
-        rating: normalisedData.rating,
-        nutrients: normalisedData.nutrients,
-        additives: normalisedData.additives,
-        userId: req.user.id,
+    await productModel.create({
+      imgUrl: normalisedData.imgUrl,
+      name: normalisedData.name,
+      brand: normalisedData.brand,
+      barcode: normalisedData.barcode,
+      processingLevel: normalisedData.processingLevel,
+      rating: normalisedData.rating,
+      nutrients: normalisedData.nutrients,
+      additives: normalisedData.additives,
+      userId: req.user.id,
+    });
+
+    console.log("User Goals:", user.goals);
+    console.log("Product Info:", normalisedData);
+
+
+    try {
+      aiResponse = await generateResponse({
+        productInfo: normalisedData,
+        userGoals: user.goals || [],
       });
-    
+      console.log("AI RESPONSE:", aiResponse);
+    } catch (err) {
+      console.log("AI ERROR:", err.message);
+    }
+
     return res.status(200).json({
       message: "Product Fetched Successfully",
       success: true,
       productInfo: normalisedData,
-    });
+      aiResponse,
+    })
+
   } catch (err) {
-    console.log("AXIOS ERROR:", err);
+    console.log("FETCH PRODUCT ERROR:", err?.message || err);
+
+    // If OpenFoodFacts/API responds with not found, return a clean 404 for frontend.
+    if (err?.response?.status === 404) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch product. Please try again.",
+    });
   }
 }
 
@@ -84,6 +138,61 @@ export async function deleteHistory(req, res) {
     success: true,
     userSearch,
   });
+}
+
+export async function createProductRequest(req, res) {
+  try {
+    const { productName } = req.body;
+    const cleanedName = String(productName || "").trim();
+
+    if (!cleanedName) {
+      return res.status(400).json({
+        success: false,
+        message: "Product name is required.",
+      });
+    }
+
+    const user = await userModel.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    const existingPending = await productRequestModel.findOne({
+      status: "pending",
+      "requestedBy.userId": String(user._id),
+      productName: { $regex: `^${cleanedName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, $options: "i" },
+    });
+
+    if (existingPending) {
+      return res.status(409).json({
+        success: false,
+        message: "You have already requested this product.",
+      });
+    }
+
+    const request = await productRequestModel.create({
+      productName: cleanedName,
+      requestedBy: {
+        userId: String(user._id),
+        username: user.username || "",
+        email: user.email || "",
+      },
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Request submitted successfully.",
+      request,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to submit product request.",
+    });
+  }
 }
 
 // { ------------------NORMALISED_DATA-------------------------------------------------------------------------------------

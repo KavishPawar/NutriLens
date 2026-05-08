@@ -13,13 +13,8 @@ const productSchema = new mongoose.Schema(
     },
 
     nutrients: {
-      energy_kcal: { type: Number, default: null },
-      sugar: { type: Number, default: null },
-      fat: { type: Number, default: null },
-      saturated_fat: { type: Number, default: null },
-      sodium: { type: Number, default: null },
-      carbohydrates: { type: Number, default: null },
-      protein: { type: Number, default: null },
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
     },
     additives: [
       {
@@ -34,8 +29,8 @@ const productSchema = new mongoose.Schema(
     },
     userId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   { timestamps: true },
 );

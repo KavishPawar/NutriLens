@@ -1,4 +1,4 @@
-import "dotenv/config";
+﻿import "dotenv/config";
 import rating from "../services/rating.service.js"; 
 import additiveData from "../config/additivesDB.js"; 
 
@@ -15,7 +15,7 @@ export async function normalization(product) {
         const code = ad.split(":")[1]?.toUpperCase();
         return additiveData.find((item) => item.code.toUpperCase() === code);
       })
-      // .filter(Boolean); // removes undefined
+      .filter(Boolean);
   }
 
   return {
@@ -47,13 +47,13 @@ export async function normalization(product) {
 
     // 🔥 match schema structure directly (no nested mismatch)
     nutrients: {
-      energy_kcal: product.nutrients?.["energy-kcal_100g"] ?? null,
-      sugar: product.nutrients?.sugars_100g ?? null,
-      fat: product.nutrients?.fat_100g ?? null,
-      saturated_fat: product.nutrients?.["saturated-fat_100g"] ?? null,
-      sodium: product.nutrients?.sodium_100g ?? null,
-      carbohydrates: product.nutrients?.carbohydrates_100g ?? null,
-      protein: product.nutrients?.proteins_100g ?? null,
+      energy_kcal: product.nutriments?.["energy-kcal_100g"] ?? null,
+      sugar: product.nutriments?.sugars_100g ?? null,
+      fat: product.nutriments?.fat_100g ?? null,
+      saturated_fat: product.nutriments?.["saturated-fat_100g"] ?? null,
+      sodium: product.nutriments?.sodium_100g ?? null,
+      carbohydrates: product.nutriments?.carbohydrates_100g ?? null,
+      protein: product.nutriments?.proteins_100g ?? null,
     },
 
     additives: additivesArr,
@@ -61,3 +61,7 @@ export async function normalization(product) {
     last_updated: new Date(),
   };
 }
+
+export async function additives() {
+  
+} 

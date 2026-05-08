@@ -1,11 +1,21 @@
+import { Router } from "express";
+import {
+  registerValidator,
+  loginValidator,
+} from "../validators/auth.validators.js";
+import {
+  register,
+  login,
+  getUser,
+  updateProfile,
+  googleCallback,
+  logout,
+} from "../controllers/auth.controller.js";
+import identifyUser from "../middleware/identifyUser.middleware.js";
+import passport from "passport";
+import { config } from "../config/config.js";
 
-import {Router} from 'express'
-import { registerValidator, loginValidator } from '../validators/auth.validators.js';
-import { register, login, getUser, googleCallback, logout } from '../controllers/auth.controller.js';
-import identifyUser from '../middleware/identifyUser.middleware.js';
-import passport from 'passport';
-
-const router = Router()
+const router = Router();
 
 /**
  * @route POST /api/auth/register
@@ -13,7 +23,7 @@ const router = Router()
  * @access Public
  * @body { username, email, password }
  */
-router.post('/register', registerValidator, register);
+router.post("/register", registerValidator, register);
 
 /**
  * @route POST /api/auth/login
@@ -21,15 +31,25 @@ router.post('/register', registerValidator, register);
  * @access Public
  * @body { username, email, password }
  */
-router.post('/login', loginValidator, login);
+router.post("/login", loginValidator, login);
 
-router.get('/logout', logout);
+router.get("/logout", logout);
 
-router.get('/get-user', identifyUser, getUser);
+router.get("/get-user", identifyUser, getUser);
+router.put("/update-user", identifyUser, updateProfile);
 
-router.get('/google', passport.authenticate("google", { scope : [ "profile", "email" ] }))
+router.get(
+  "/google",
+  passport.authenticate("google", { scope: ["profile", "email"] }),
+);
 
-router.get('/google/callback', passport.authenticate('google', { session: false , failureRedirect: "http://localhost:5173/login"}), googleCallback)
+router.get(
+  "/google/callback",
+  passport.authenticate("google", {
+    session: false,
+    failureRedirect: `${config.FRONTEND_URL}/login`,
+  }),
+  googleCallback,
+);
 
-
-export default router
+export default router;

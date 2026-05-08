@@ -5,6 +5,8 @@ import 'dotenv/config'
 
 connectDB()
 
-app.listen(3000, () => {
-    console.log(`PORT StArTeD @3000=======> `)
+const PORT = Number(process.env.PORT) || 3000;
+
+app.listen(PORT, () => {
+    console.log(`Server started on port ${PORT}`)
 })

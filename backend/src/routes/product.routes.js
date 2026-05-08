@@ -1,6 +1,11 @@
 import { Router } from "express";
 import identifyUser from "../middleware/identifyUser.middleware.js";
-import { deleteHistory, fetchProduct, productHistory } from "../controllers/product.controller.js";
+import {
+  createProductRequest,
+  deleteHistory,
+  fetchProduct,
+  productHistory,
+} from "../controllers/product.controller.js";
 
 const router = Router();
 
@@ -33,5 +38,13 @@ router.get('/history', identifyUser, productHistory)
  * @body { - }
  */
 router.delete('/history/delete/:userId', identifyUser, deleteHistory)
+
+/**
+ * @route POST /api/product/requests
+ * @desc Create a missing-product request
+ * @access Private
+ * @body { productName }
+ */
+router.post("/requests", identifyUser, createProductRequest);
 
 export default router
