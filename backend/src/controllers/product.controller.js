@@ -11,7 +11,13 @@ export async function fetchProduct(req, res) {
   // 6001065600048
 
   try {
-    const barcode = Number(req.params.barcode);
+    const barcode = String(req.params.barcode || "").trim();
+    if (!barcode) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid barcode",
+      });
+    }
     console.log(barcode);
 
     const user = await userModel.findOne({ _id: req.user.id });
@@ -47,7 +53,7 @@ export async function fetchProduct(req, res) {
 
     // API Search.///////////////////////////////////////////////////////////////////////////////////////////
     const response = await axios.get(
-      `https://world.openfoodfacts.net/api/v2/product/${barcode}.json`,
+      `https://world.openfoodfacts.org/api/v2/product/${barcode}.json`,
     );
 
     if (response.data.status === 0) {

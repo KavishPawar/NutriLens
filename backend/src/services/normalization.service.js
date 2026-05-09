@@ -24,7 +24,7 @@ export async function normalization(product) {
     brand: product.brands || null,
 
     // 🔥 enforce correct type
-    barcode: product.code ? Number(product.code) : null,
+    barcode: product.code ? String(product.code) : null,
 
     // 🔥 match schema directly
     processingLevel: product.nova_group
