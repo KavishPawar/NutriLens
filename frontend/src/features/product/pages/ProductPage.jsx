@@ -170,6 +170,12 @@ const SUB_NUTRIENT = {
   carbohydrates: { key: "sugar", label: "Sugars", warnBelow: 5 },
 };
 
+function formatToTwoDecimals(value) {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return value;
+  return numeric.toFixed(2);
+}
+
 function NutrientCard({
   nutrientKey,
   value,
@@ -198,7 +204,8 @@ function NutrientCard({
           marginTop: 4,
         }}
       >
-        {sub.label}: {subValue}g{isWarn ? " (High)" : isLow ? " (Low)" : ""}
+        {sub.label}: {formatToTwoDecimals(subValue)}g
+        {isWarn ? " (High)" : isLow ? " (Low)" : ""}
       </p>
     );
   }
@@ -227,7 +234,7 @@ function NutrientCard({
         {cfg.label}
       </p>
       <p style={{ fontSize: "1.4rem", fontWeight: 700, color: valueColor }}>
-        {cfg.display(value)}
+        {cfg.display(formatToTwoDecimals(value))}
       </p>
       {isHigh && (
         <p
